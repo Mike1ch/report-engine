@@ -1,9 +1,8 @@
-require('dotenv').config()
-const Groq = require('groq-sdk')
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
-
 async function generateInsights(metrics) {
+  require('dotenv').config()
+  const Groq = require('groq-sdk')
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+
   const prompt = `
 You are a business data analyst. Analyze this sales data and give 4 clear, specific insights.
 Each insight should be 1-2 sentences. Be direct and mention actual numbers.
@@ -30,7 +29,6 @@ Return ONLY a JSON array of 4 insight objects like this:
   { "title": "insight title", "text": "insight explanation with numbers", "type": "info" },
   { "title": "insight title", "text": "insight explanation with numbers", "type": "tip" }
 ]
-
 Types must be one of: positive, warning, info, tip
 Return ONLY the JSON array, nothing else.
 `
