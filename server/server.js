@@ -2,6 +2,8 @@ const express = require('express')
 const cors = require('cors')
 const multer = require('multer')
 const { generateReport } = require('./pdfGenerator')
+const { generateInsights } = require('./insightsGenerator')
+require('dotenv').config()
 
 const app = express()
 const PORT = 3001
@@ -37,6 +39,21 @@ app.post('/api/export-pdf', (req, res) => {
   const { metrics } = req.body
   if (!metrics) return res.status(400).json({ error: 'No metrics provided' })
   generateReport(metrics, res)
+})
+
+app.post('/api/insights', async (req, res) => {
+  const { metrics } = req.body
+  if (!metrics) return res.status(400).json({ error: 'No metrics provided' })
+  console.log('Insights request received')
+  console.log('GROQ_API_KEY exists:', !!process.env.GROQ_API_KEY)
+  try {
+    const insights = await generateInsights(metrics)
+    console.log('Insights generated:', insights)
+    res.json({ insights })
+  } catch (err) {
+    console.error('Insights error full:', err.message)
+    res.status(500).json({ error: err.message })
+  }
 })
 
 app.listen(PORT, () => {
