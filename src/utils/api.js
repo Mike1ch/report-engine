@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3001'
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 export async function uploadFile(file) {
   const formData = new FormData()
@@ -30,4 +30,13 @@ export async function exportPDF(metrics) {
   link.dispatchEvent(new MouseEvent('click'))
   document.body.removeChild(link)
   window.URL.revokeObjectURL(url)
+}
+
+export async function getInsights(metrics) {
+  const response = await fetch(BASE_URL + '/api/insights', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ metrics }),
+  })
+  return await response.json()
 }

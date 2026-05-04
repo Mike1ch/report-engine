@@ -2,6 +2,8 @@ const express = require('express')
 const cors = require('cors')
 const multer = require('multer')
 const { generateReport } = require('./pdfGenerator')
+const { generateInsights } = require('./insightsGenerator')
+require('dotenv').config()
 
 const app = express()
 const PORT = 3001
@@ -37,6 +39,18 @@ app.post('/api/export-pdf', (req, res) => {
   const { metrics } = req.body
   if (!metrics) return res.status(400).json({ error: 'No metrics provided' })
   generateReport(metrics, res)
+})
+
+app.post('/api/insights', async (req, res) => {
+  const { metrics } = req.body
+  if (!metrics) return res.status(400).json({ error: 'No metrics provided' })
+  try {
+    const insights = await generateInsights(metrics)
+    res.json({ insights })
+  } catch (err) {
+    console.error('Insights error:', err)
+    res.status(500).json({ error: 'Failed to generate insights' })
+  }
 })
 
 app.listen(PORT, () => {
