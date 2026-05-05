@@ -6,9 +6,12 @@ const { generateInsights } = require('./insightsGenerator')
 require('dotenv').config()
 
 const app = express()
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 
-app.use(cors())
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://report-engine-pied.vercel.app'],
+  credentials: true
+}))
 app.use(express.json())
 
 const storage = multer.diskStorage({
@@ -44,14 +47,11 @@ app.post('/api/export-pdf', (req, res) => {
 app.post('/api/insights', async (req, res) => {
   const { metrics } = req.body
   if (!metrics) return res.status(400).json({ error: 'No metrics provided' })
-  console.log('Insights request received')
-  console.log('GROQ_API_KEY exists:', !!process.env.GROQ_API_KEY)
   try {
     const insights = await generateInsights(metrics)
-    console.log('Insights generated:', insights)
     res.json({ insights })
   } catch (err) {
-    console.error('Insights error full:', err.message)
+    console.error('Insights error:', err.message)
     res.status(500).json({ error: err.message })
   }
 })
