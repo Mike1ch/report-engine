@@ -2,6 +2,7 @@ import { useState } from 'react'
 import FileUpload from './components/FileUpload'
 import Dashboard from './components/Dashboard'
 import InsightsPanel from './components/InsightsPanel'
+import { DashboardSkeleton } from './components/SkeletonLoader'
 import { processData } from './utils/dataProcessor'
 import { exportPDF, getInsights } from './utils/api'
 
@@ -9,24 +10,30 @@ function App() {
   const [metrics, setMetrics] = useState(null)
   const [insights, setInsights] = useState([])
   const [loadingInsights, setLoadingInsights] = useState(false)
+  const [loadingDashboard, setLoadingDashboard] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [activeTab, setActiveTab] = useState('upload')
   const [fileName, setFileName] = useState('')
 
   async function handleDataLoaded(rows) {
     setFileName(rows.length + ' rows')
-    const result = processData(rows)
-    setMetrics(result)
+    setLoadingDashboard(true)
     setActiveTab('dashboard')
     setInsights([])
-    setLoadingInsights(true)
-    try {
-      const data = await getInsights(result)
-      setInsights(data.insights || [])
-    } catch (err) {
-      console.error('Insights failed:', err)
-    }
-    setLoadingInsights(false)
+
+    setTimeout(async () => {
+      const result = processData(rows)
+      setMetrics(result)
+      setLoadingDashboard(false)
+      setLoadingInsights(true)
+      try {
+        const data = await getInsights(result)
+        setInsights(data.insights || [])
+      } catch (err) {
+        console.error('Insights failed:', err)
+      }
+      setLoadingInsights(false)
+    }, 500)
   }
 
   async function handleExport() {
@@ -50,10 +57,8 @@ function App() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
 
-      {/* Top header */}
       <div style={{
-        background: '#0f1923',
-        padding: '14px 20px',
+        background: '#0f1923', padding: '14px 20px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'sticky', top: 0, zIndex: 100,
       }}>
@@ -84,14 +89,13 @@ function App() {
         </div>
       </div>
 
-      {/* Main content */}
       <div style={{ flex: 1, background: '#f4f5f7', paddingBottom: '70px', overflowY: 'auto' }}>
         <div style={{ maxWidth: '960px', margin: '0 auto', padding: '20px 16px' }}>
 
           {activeTab === 'upload' && (
             <div>
               <p style={{ fontSize: '14px', color: '#6b7a8d', marginBottom: '16px' }}>
-                Upload a CSV file to generate your analytics dashboard, AI insights, and PDF report.
+                Upload a CSV or Excel file to generate your analytics dashboard, AI insights, and PDF report.
               </p>
               <FileUpload onDataLoaded={handleDataLoaded} />
               {metrics && (
@@ -111,7 +115,11 @@ function App() {
           )}
 
           {activeTab === 'dashboard' && (
-            metrics ? <Dashboard metrics={metrics} /> : <EmptyState onUpload={() => setActiveTab('upload')} />
+            loadingDashboard
+              ? <DashboardSkeleton />
+              : metrics
+                ? <Dashboard metrics={metrics} />
+                : <EmptyState onUpload={() => setActiveTab('upload')} />
           )}
 
           {activeTab === 'insights' && (
@@ -127,7 +135,6 @@ function App() {
         </div>
       </div>
 
-      {/* Bottom navigation bar */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
         background: '#0f1923', borderTop: '1px solid #1e2d3d',
@@ -141,18 +148,10 @@ function App() {
             cursor: 'pointer', display: 'flex',
             flexDirection: 'column', alignItems: 'center', gap: '3px',
           }}>
-            <span style={{
-              fontSize: '16px',
-              opacity: activeTab === item.id ? 1 : 0.5
-            }}>{item.icon}</span>
-            <span style={{
-              fontSize: '10px', fontWeight: activeTab === item.id ? '600' : '400'
-            }}>{item.label}</span>
+            <span style={{ fontSize: '16px', opacity: activeTab === item.id ? 1 : 0.5 }}>{item.icon}</span>
+            <span style={{ fontSize: '10px', fontWeight: activeTab === item.id ? '600' : '400' }}>{item.label}</span>
             {activeTab === item.id && (
-              <div style={{
-                width: '20px', height: '2px',
-                background: '#1D9E75', borderRadius: '1px'
-              }} />
+              <div style={{ width: '20px', height: '2px', background: '#1D9E75', borderRadius: '1px' }} />
             )}
           </button>
         ))}
@@ -171,7 +170,7 @@ function EmptyState({ onUpload }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px'
       }}>📂</div>
       <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>No data yet</h3>
-      <p style={{ fontSize: '14px', color: '#8a94a6', marginBottom: '20px' }}>Upload a CSV file to get started</p>
+      <p style={{ fontSize: '14px', color: '#8a94a6', marginBottom: '20px' }}>Upload a CSV or Excel file to get started</p>
       <button onClick={onUpload} style={{
         background: '#1D9E75', color: 'white', border: 'none',
         borderRadius: '8px', padding: '10px 20px',
