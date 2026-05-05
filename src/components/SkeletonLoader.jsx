@@ -21,7 +21,6 @@ function DashboardSkeleton() {
           100% { background-position: -200% 0; }
         }
       `}</style>
-
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -38,7 +37,6 @@ function DashboardSkeleton() {
           </div>
         ))}
       </div>
-
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
         {[1,2].map(i => (
           <div key={i} style={{
@@ -51,7 +49,6 @@ function DashboardSkeleton() {
           </div>
         ))}
       </div>
-
       <div style={{
         background: 'white', borderRadius: '12px',
         padding: '20px', border: '1px solid #e5e9f0'
