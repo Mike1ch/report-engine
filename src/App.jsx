@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import LandingPage from './components/LandingPage'
 import FileUpload from './components/FileUpload'
 import Dashboard from './components/Dashboard'
 import InsightsPanel from './components/InsightsPanel'
@@ -7,6 +8,7 @@ import { processData } from './utils/dataProcessor'
 import { exportPDF, getInsights } from './utils/api'
 
 function App() {
+  const [showApp, setShowApp] = useState(false)
   const [metrics, setMetrics] = useState(null)
   const [insights, setInsights] = useState([])
   const [loadingInsights, setLoadingInsights] = useState(false)
@@ -20,7 +22,6 @@ function App() {
     setLoadingDashboard(true)
     setActiveTab('dashboard')
     setInsights([])
-
     setTimeout(async () => {
       const result = processData(rows)
       setMetrics(result)
@@ -47,6 +48,10 @@ function App() {
     setExporting(false)
   }
 
+  if (!showApp) {
+    return <LandingPage onGetStarted={() => setShowApp(true)} />
+  }
+
   const navItems = [
     { id: 'upload', label: 'Upload', icon: '↑' },
     { id: 'dashboard', label: 'Dashboard', icon: '▦' },
@@ -56,19 +61,23 @@ function App() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
-
       <div style={{
         background: '#0f1923', padding: '14px 20px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'sticky', top: 0, zIndex: 100,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '28px', height: '28px', background: '#1D9E75',
-            borderRadius: '6px', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', color: 'white', fontWeight: '700', fontSize: '14px'
-          }}>R</div>
-          <span style={{ color: 'white', fontWeight: '600', fontSize: '15px' }}>Report Engine</span>
+          <button onClick={() => setShowApp(false)} style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: '8px', padding: 0,
+          }}>
+            <div style={{
+              width: '28px', height: '28px', background: '#1D9E75',
+              borderRadius: '6px', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', color: 'white', fontWeight: '700', fontSize: '14px'
+            }}>R</div>
+            <span style={{ color: 'white', fontWeight: '600', fontSize: '15px' }}>Report Engine</span>
+          </button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {fileName && (
@@ -95,7 +104,7 @@ function App() {
           {activeTab === 'upload' && (
             <div>
               <p style={{ fontSize: '14px', color: '#6b7a8d', marginBottom: '16px' }}>
-                Upload a CSV or Excel file to generate your analytics dashboard, AI insights, and PDF report.
+                Upload a CSV or Excel file to generate your dashboard, AI insights, and PDF report.
               </p>
               <FileUpload onDataLoaded={handleDataLoaded} />
               {metrics && (
@@ -142,8 +151,7 @@ function App() {
       }}>
         {navItems.map(item => (
           <button key={item.id} onClick={() => setActiveTab(item.id)} style={{
-            flex: 1, padding: '10px 4px',
-            background: 'none', border: 'none',
+            flex: 1, padding: '10px 4px', background: 'none', border: 'none',
             color: activeTab === item.id ? '#1D9E75' : '#4a5568',
             cursor: 'pointer', display: 'flex',
             flexDirection: 'column', alignItems: 'center', gap: '3px',
@@ -156,7 +164,6 @@ function App() {
           </button>
         ))}
       </div>
-
     </div>
   )
 }
