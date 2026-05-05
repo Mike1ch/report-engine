@@ -1,8 +1,8 @@
 const express = require('express')
 const cors = require('cors')
 const multer = require('multer')
-const { generateReport } = require('./pdfGenerator')
-const { generateInsights } = require('./insightsGenerator')
+const pdfGenerator = require('./pdfGenerator')
+const insightsGenerator = require('./insightsGenerator')
 require('dotenv').config()
 
 const app = express()
@@ -24,15 +24,15 @@ const storage = multer.diskStorage({
 })
 const upload = multer({ storage: storage })
 
-app.get('/', (req, res) => {
+app.get('/', function(req, res) {
   res.json({ message: 'Report Engine backend is running!' })
 })
 
-app.get('/api/health', (req, res) => {
+app.get('/api/health', function(req, res) {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-app.post('/api/upload', upload.single('file'), (req, res) => {
+app.post('/api/upload', upload.single('file'), function(req, res) {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' })
   res.json({
     message: 'File uploaded successfully',
@@ -42,17 +42,17 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
   })
 })
 
-app.post('/api/export-pdf', (req, res) => {
-  const { metrics } = req.body
+app.post('/api/export-pdf', function(req, res) {
+  const metrics = req.body.metrics
   if (!metrics) return res.status(400).json({ error: 'No metrics provided' })
-  generateReport(metrics, res)
+  pdfGenerator.generateReport(metrics, res)
 })
 
-app.post('/api/insights', async (req, res) => {
-  const { metrics } = req.body
+app.post('/api/insights', async function(req, res) {
+  const metrics = req.body.metrics
   if (!metrics) return res.status(400).json({ error: 'No metrics provided' })
   try {
-    const insights = await generateInsights(metrics)
+    const insights = await insightsGenerator.generateInsights(metrics)
     res.json({ insights })
   } catch (err) {
     console.error('Insights error:', err.message)
@@ -60,6 +60,6 @@ app.post('/api/insights', async (req, res) => {
   }
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, function() {
   console.log('Backend server running on http://localhost:' + PORT)
 })
