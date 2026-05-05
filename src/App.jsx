@@ -130,7 +130,7 @@ function App() {
             </h1>
             <p style={{ fontSize: '12px', color: '#8a94a6', marginTop: '1px' }}>
               {metrics
-                ? 'Analyzing ' + metrics.totalOrders + ' orders � Top region: ' + metrics.topRegion
+                ? 'Analyzing ' + metrics.totalOrders + ' orders · Top region: ' + metrics.topRegion
                 : 'Upload a CSV file to get started'}
             </p>
           </div>
@@ -155,7 +155,7 @@ function App() {
                   background: '#E1F5EE', borderRadius: '8px',
                   display: 'flex', alignItems: 'center', gap: '10px'
                 }}>
-                  <span style={{ color: '#1D9E75', fontSize: '18px' }}>?</span>
+                  <span style={{ color: '#1D9E75', fontSize: '18px' }}>✓</span>
                   <div>
                     <p style={{ fontSize: '13px', fontWeight: '600', color: '#0F6E56' }}>File processed successfully</p>
                     <p style={{ fontSize: '12px', color: '#1D9E75' }}>Click Dashboard in the sidebar to view your analytics</p>
@@ -181,7 +181,7 @@ function EmptyState({ onUpload }) {
         width: '64px', height: '64px', background: '#E1F5EE',
         borderRadius: '16px', margin: '0 auto 16px',
         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px'
-      }}>??</div>
+      }}>📂</div>
       <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>No data yet</h3>
       <p style={{ fontSize: '14px', color: '#8a94a6', marginBottom: '20px' }}>Upload a CSV file to see your analytics here</p>
       <button onClick={onUpload} style={{
